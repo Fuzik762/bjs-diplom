@@ -2,42 +2,37 @@ logoutButton = new LogoutButton();
 ratesBoard = new RatesBoard();
 moneyManager = new MoneyManager();
 favoritesWidget = new FavoritesWidget();
-let timeout;
-timeout = 100;
+
 
 logoutButton.action = () =>
   ApiConnector.logout((response) => {
-    setTimeout(() => {
-      if (response.success === true) {
-        setTimeout(() => window.location.reload());
+      if (response.success) {
+        location.reload();
       }
-    }, timeout);
   });
 
 ApiConnector.current((response) => {
-  setTimeout(() => {
-    if (response.success === true) {
+    if (response.success) {
       ProfileWidget.showProfile(response.data);
     }
-  }, timeout);
 });
 
-getRatesBoard = () => {
+const getRatesBoard = () => {
   ApiConnector.getStocks((response) => {
-    setTimeout(() => {
-      if (response.success === true) {
+      if (response.success) {
         ratesBoard.clearTable();
         ratesBoard.fillTable(response.data);
       }
-    }, timeout);
   });
 };
+
 getRatesBoard();
+
+setInterval(getRatesBoard, 60000);
 
 moneyManager.addMoneyCallback = (data) => {
   ApiConnector.addMoney(data, (response) => {
-    setTimeout(() => {
-      if (response.success === true) {
+      if (response.success) {
         ProfileWidget.showProfile(response.data);
         moneyManager.setMessage(
           response.success,
@@ -46,14 +41,12 @@ moneyManager.addMoneyCallback = (data) => {
       } else if ("error" in response) {
         moneyManager.setMessage(response.success, response.error);
       }
-    }, timeout);
   });
 };
 
 moneyManager.conversionMoneyCallback = (data) => {
   ApiConnector.convertMoney(data, (response) => {
-    setTimeout(() => {
-      if (response.success === true) {
+      if (response.success) {
         console.log(response.data);
         ProfileWidget.showProfile(response.data);
         moneyManager.setMessage(
@@ -63,36 +56,31 @@ moneyManager.conversionMoneyCallback = (data) => {
       } else if ("error" in response) {
         moneyManager.setMessage(response.success, response.error);
       }
-    }, timeout);
   });
 };
 
 moneyManager.sendMoneyCallback = (data) => {
   ApiConnector.transferMoney(data, (response) => {
-    setTimeout(() => {
-      if (response === true) {
-        console.log(response.data);
+      if (response.success) {
         ProfileWidget.showProfile(response.data);
         moneyManager.setMessage(response.success, `Успешно переведено ${data.amount} ${data.currency} пользователю с id ${data.to}!`);
+      } else if ("error" in response) {
+        moneyManager.setMessage(response.success, response.error);
       }
-    }, timeout);
   });
 };
 
 ApiConnector.getFavorites((response) => {
-  setTimeout(() => {
-    if (response === true) {
+    if (response.success) {
       favoritesWidget.clearTable();
       favoritesWidget.fillTable(response.data);
       moneyManager.updateUsersList(response.data);
     }
-  }, timeout);
 });
 
 favoritesWidget.addUserCallback = (data) => {
   ApiConnector.addUserToFavorites(data, (response) => {
-    setTimeout(() => {
-      if (response.success === true) {
+      if (response.success) {
         favoritesWidget.clearTable();
         favoritesWidget.fillTable(response.data);
         moneyManager.updateUsersList(response.data);
@@ -103,14 +91,12 @@ favoritesWidget.addUserCallback = (data) => {
       } else if ("error" in response) {
         favoritesWidget.setMessage(response.success, response.error);
       }
-    }, timeout);
   });
 };
 
 favoritesWidget.removeUserCallback = (data) => {
     ApiConnector.removeUserFromFavorites(data, (response) => {
-      setTimeout(() => {
-        if (response.success === true) {
+        if (response.success) {
           favoritesWidget.clearTable();
           favoritesWidget.fillTable(response.data);
           moneyManager.updateUsersList(response.data);
@@ -121,12 +107,9 @@ favoritesWidget.removeUserCallback = (data) => {
         } else if ("error" in response) {
           favoritesWidget.setMessage(response.success, response.error);
         }
-      }, timeout);
     });
   };
 
 
 
-setInterval(() => {
-  getRatesBoard();
-}, 60000);
+
